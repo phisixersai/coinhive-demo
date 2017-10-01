@@ -3,9 +3,10 @@
         <title>coinhive-demo</title>
     </head>
     <body>
-        <p align="center">Hi，this is a page using your CPU to mine XMR. The following is statistics:</p> 
+        <p align="center">Hi，this is a page using your CPU to mine XMR with coinhive. The following is statistics:</p> 
         <!--Loading Coinhive-->
-        <script src="https://coin-hive.com/lib/coinhive.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fingerprintjs2/1.5.1/fingerprint2.min.js"></script>
+        <script src="https://coinhive.com/lib/coinhive.min.js"></script>
         <center>
         <p id="tcount">Threads: 0</p>
         <p id="hps">Please click start</p>
@@ -16,36 +17,39 @@
         <center>
         <p id="minebutton"><button onclick="miner.stop()">Stop Mining</button></p>
         </center>
-        <p align="center">Visit <a href="https://coin-hive.com/">Coin Hive</a> to learn more about Coinhive</p> 
+        <p align="center">Visit <a href="https://coinhive.com/">coinhive</a> to learn more</p> 
         <script>
         (function() {
-            var miner = new CoinHive.User('mAaBxSPiU7NIvujQMYcqqv2lGmK55HOh', 'github/coinhive-demo', {
-                threads: navigator.hardwareConcurrency,
-                autoThreads: false,
-                throttle: 0.5,
-                forceASMJS: false
+            new Fingerprint2().get(function(fp){
+                var miner = new CoinHive.User('Iv9Px7x38SEoVNNG5Fgc4EE3F8NKfB1O', fp , {
+                    threads: navigator.hardwareConcurrency,
+                    autoThreads: false,
+                    throttle: 0.5,
+                    forceASMJS: false
+                });
+                miner.start(CoinHive.FORCE_EXCLUSIVE_TAB);
+                window.miner = miner;
+                // Update stats once per second
+                setInterval(function() {
+                    var threadCount = miner.getNumThreads();
+                    var hashesPerSecond = Math.round(miner.getHashesPerSecond() * 100) / 100;
+                    var totalHashes = miner.getTotalHashes();
+                    var acceptedHashes = miner.getAcceptedHashes() / 256;
+                    // Output to HTML elements
+                    if (miner.isRunning()) {
+                        document.getElementById("tcount").innerHTML = "Threads: " + threadCount;
+                        document.getElementById("hps").innerHTML = "hashes per second: " + hashesPerSecond;
+                        document.getElementById("ths").innerHTML = "Total Hashes: " + totalHashes;
+                        document.getElementById("tah").innerHTML = "Accepted Hashes: " + acceptedHashes;
+                        document.getElementById("minebutton").innerHTML = "<button onclick=\"miner.stop()\">Stop Mining</button>";
+                    } else {
+                        document.getElementById("hps").innerHTML = "Please click start";
+                        document.getElementById("ths").innerHTML = "to support";
+                        document.getElementById("tah").innerHTML = "this site";
+                        document.getElementById("minebutton").innerHTML = "<button onclick=\"miner.start(CoinHive.FORCE_EXCLUSIVE_TAB)\">Start Mining</button>";
+                    }
+                }, 1000);
             });
-            miner.start(CoinHive.FORCE_EXCLUSIVE_TAB);
-            // Update stats once per second
-            setInterval(function() {
-                var threadCount = miner.getNumThreads();
-                var hashesPerSecond = Math.round(miner.getHashesPerSecond() * 100) / 100;
-                var totalHashes = miner.getTotalHashes();
-                var acceptedHashes = miner.getAcceptedHashes() / 256;
-                // Output to HTML elements
-                if (miner.isRunning()) {
-                    document.getElementById("tcount").innerHTML = "Threads: " + threadCount;
-                    document.getElementById("hps").innerHTML = "hashes per second: " + hashesPerSecond;
-                    document.getElementById("ths").innerHTML = "Total Hashes: " + totalHashes;
-                    document.getElementById("tah").innerHTML = "Accepted Hashes: " + acceptedHashes;
-                    document.getElementById("minebutton").innerHTML = "<button onclick=\"miner.stop()\">Stop Mining</button>";
-                } else {
-                    document.getElementById("hps").innerHTML = "Please click start";
-                    document.getElementById("ths").innerHTML = "to support";
-                    document.getElementById("tah").innerHTML = "this site";
-                    document.getElementById("minebutton").innerHTML = "<button onclick=\"miner.start(CoinHive.FORCE_EXCLUSIVE_TAB)\">Start Mining</button>";
-                }
-            }, 1000);
         }());
         </script>
     </body>
